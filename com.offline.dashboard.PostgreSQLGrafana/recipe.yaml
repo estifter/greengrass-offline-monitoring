@@ -1,0 +1,51 @@
+---
+RecipeFormatVersion: '2020-01-25'
+ComponentName: "{COMPONENT_NAME}"
+ComponentVersion: "{COMPONENT_VERSION}"
+ComponentDescription: 'A component that configures the PostgreSQL and Grafana components to work together.'
+ComponentPublisher: "{COMPONENT_AUTHOR}"
+ComponentDependencies:
+  aws.greengrass.labs.database.PostgreSQL:
+    VersionRequirement: ~1.0.0
+    DependencyType: HARD
+  aws.greengrass.labs.dashboard.Grafana:
+    VersionRequirement: ~1.0.0
+    DependencyType: HARD
+  aws.greengrass.SecretManager:
+    VersionRequirement: ~2.1.0
+    DependencyType: HARD
+ComponentConfiguration:
+  DefaultConfiguration:
+    PostgresSecretArn: "arn:aws:secretsmanager:us-east-1:647314867318:secret:postgres/auth-88ezha"
+    GrafanaSecretArn: "arn:aws:secretsmanager:us-east-1:647314867318:secret:grafana/auth-wnS0yS"
+    accessControl:
+      aws.greengrass.ipc.pubsub:
+        com.offline.dashboard.PostgreSQLGrafana:pubsub:1:
+          policyDescription: Allows access to subscribe to local Greengrass topics.
+          operations:
+            - "*"
+          resources:
+            - "greengrass/postgresql/config/request"
+            - "greengrass/postgresql/config/response"
+            - "greengrass/grafana/config/request"
+            - "greengrass/grafana/config/response"
+      aws.greengrass.SecretManager:
+        com.offline.dashboard.PostgreSQLGrafana:secrets:1:
+          operations:
+            - "aws.greengrass#GetSecretValue"
+          policyDescription: "Allows access to the secret containing PostgreSQL and Grafana credentials."
+          resources:
+            - "arn:aws:secretsmanager:us-east-1:647314867318:secret:postgres/auth-88ezha"
+            - "arn:aws:secretsmanager:us-east-1:647314867318:secret:grafana/auth-wnS0yS"
+Manifests:
+  - Platform:
+      os: /darwin|linux/
+    Lifecycle:
+      Install: "pip install awsiotsdk psycopg2-binary requests"
+      Run:
+        script: "python3 -u {artifacts:decompressedPath}/com.offline.dashboard.PostgreSQLGrafana/configure.py
+                  --postgresql_secret_arn {configuration:/PostgresSecretArn}
+                  --grafana_secret_arn {configuration:/GrafanaSecretArn}"
+    Artifacts:
+    - URI: "s3://BUCKET_NAME/COMPONENT_NAME/COMPONENT_VERSION/com.offline.dashboard.PostgreSQLGrafana.zip"
+      Unarchive: ZIP

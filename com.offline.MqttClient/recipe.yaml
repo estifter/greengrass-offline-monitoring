@@ -1,0 +1,53 @@
+---
+RecipeFormatVersion: "2020-01-25"
+ComponentName: "{COMPONENT_NAME}"
+ComponentVersion: "{COMPONENT_VERSION}"
+ComponentDescription: "This component will relay messages from the Nucleus IPC MQTT broker to an MQTT broker on the network."
+ComponentPublisher: "{COMPONENT_AUTHOR}"
+ComponentConfiguration:
+  DefaultConfiguration:
+    Topics: 
+      - From: "example/local"
+        To: "example/remote"
+    BrokerThingName: example-thing
+    BrokerThingRegion: us-east-1
+    ForceRediscovery: false
+    accessControl:
+      aws.greengrass.ipc.pubsub:
+        "com.offline.MqttClient:pubsub:1":
+          policyDescription: Allows access to local pubsub
+          operations:
+            - "aws.greengrass#PublishToTopic"
+            - "aws.greengrass#SubscribeToTopic"
+          resources:
+            - "*"
+Manifests:
+  - Platform:
+      os: all
+    Artifacts:
+      - URI: "s3://BUCKET_NAME/COMPONENT_NAME/COMPONENT_VERSION/com.offline.MqttClient.zip"
+        Unarchive: ZIP
+    Lifecycle:
+      Install: 
+        Script: "cp {kernel:rootPath}/thingCert.crt {work:path} && cp {kernel:rootPath}/privKey.key {work:path}"
+        RequiresPrivilege: true
+      Run: 
+        Script: "pip install awsiotsdk &&
+                  python3 -u {artifacts:decompressedPath}/com.offline.MqttClient/discover.py 
+                    --broker_thing_name {configuration:/BrokerThingName}
+                    --client_thing_name {iot:thingName}
+                    --thing_cert_path {work:path}/thingCert.crt
+                    --thing_key_path {work:path}/privKey.key
+                    --region {configuration:/BrokerThingRegion} 
+                    --output_cert_path {work:path}/broker_ca.pem
+                    --output_ip_path {work:path}/broker_ip.txt
+                    --output_port_path {work:path}/broker_port.txt
+                    --force_rediscovery {configuration:/ForceRediscovery} &&
+                  python3 -u {artifacts:decompressedPath}/com.offline.MqttClient/client.py 
+                    --topics '{configuration:/Topics}'
+                    --hostname_path {work:path}/broker_ip.txt
+                    --port_path {work:path}/broker_port.txt
+                    --broker_cert_path {work:path}/broker_ca.pem
+                    --cert_path {work:path}/thingCert.crt
+                    --key_path {work:path}/privKey.key
+                    --thing_name {iot:thingName}"

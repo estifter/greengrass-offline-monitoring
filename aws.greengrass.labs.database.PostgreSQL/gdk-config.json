@@ -1,0 +1,16 @@
+{
+    "component": {
+        "aws.greengrass.labs.database.PostgreSQL": {
+            "author": "AWS IoT Greengrass",
+            "version": "NEXT_PATCH",
+            "build": {
+                "build_system": "zip"
+            },
+            "publish": {
+                "bucket": "ggv2postgresqlcomponent",
+                "region": "us-east-1"
+            }
+        }
+    },
+    "gdk_version": "1.0.0"
+}

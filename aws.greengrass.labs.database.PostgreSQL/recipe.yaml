@@ -1,0 +1,50 @@
+---
+RecipeFormatVersion: '2020-01-25'
+ComponentName: aws.greengrass.labs.database.PostgreSQL
+ComponentVersion: '1.0.0'
+ComponentDescription: 'A component that provisions and manages a local PostgreSQL instance in a Docker container.'
+ComponentPublisher: Amazon
+ComponentDependencies:
+  aws.greengrass.SecretManager:
+    VersionRequirement: ~2.1.0
+    DependencyType: HARD
+ComponentConfiguration:
+  DefaultConfiguration:
+    DBCredentialSecret: "arn:aws:secretsmanager:us-east-1:647314867318:secret:postgres/auth-88ezha"
+    ContainerMapping:
+      ContainerNetwork: "greengrass-telemetry-bridge"
+    ConfigurationFiles:
+      pg_hba.conf: "{artifacts:decompressedPath}/aws.greengrass.labs.database.PostgreSQL/pg_hba.conf"
+    accessControl:
+      aws.greengrass.ipc.pubsub:
+        com.offline.telemetry.PostgresPublisher:pubsub:1:
+          policyDescription: Allows access to subscribe to local Greengrass topics.
+          operations:
+            - "*"
+          resources:
+            - "*"
+      aws.greengrass.SecretManager:
+        aws.greengrass.labs.database.PostgreSQL:secrets:1:
+          operations:
+            - "aws.greengrass#GetSecretValue"
+          policyDescription: "Allows access to the secret containing PostgreSQL credentials."
+          resources:
+            - "arn:aws:secretsmanager:us-east-1:647314867318:secret:postgres/auth-88ezha"
+Manifests:
+  - Platform:
+      os: /darwin|linux/
+    Lifecycle:
+      Install:
+        RequiresPrivilege: True
+        script: chmod 777 {configuration:/ConfigurationFiles/pg_hba.conf}
+      Run:
+        script: |-
+          export PYTHONPATH=$PYTHONPATH:{artifacts:decompressedPath}/aws.greengrass.labs.database.PostgreSQL/
+          python3 -u {artifacts:decompressedPath}/aws.greengrass.labs.database.PostgreSQL/src/manage_postgresql.py
+      Shutdown:
+        script: |-
+          export PYTHONPATH=$PYTHONPATH:{artifacts:decompressedPath}/aws.greengrass.labs.database.PostgreSQL/
+          python3 -u {artifacts:decompressedPath}/aws.greengrass.labs.database.PostgreSQL/src/shutdown_component.py
+    Artifacts:
+      - URI: s3://COMPONENT_BUCKET/COMPONENT_NAME/COMPONENT_VERSION/aws.greengrass.labs.database.PostgreSQL.zip
+        Unarchive: ZIP
