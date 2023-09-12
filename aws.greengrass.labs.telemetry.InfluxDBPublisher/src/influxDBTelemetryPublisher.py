@@ -7,7 +7,6 @@ import logging
 import argparse
 
 import awsiot.greengrasscoreipc
-from awsiot.greengrasscoreipc.clientv2 import GreengrassCoreIPCClientV2
 from awsiot.greengrasscoreipc.model import (
     PublishToTopicRequest,
     PublishMessage,
@@ -194,10 +193,10 @@ def relay_telemetry(influxdb_parameters) -> None:
     telemetry_subscriber_client = awsiot.greengrasscoreipc.connect()
     handler = streamHandlers.TelemetryStreamHandler(influxdb_parameters)
     telemetry_operation = telemetry_subscriber_client.new_subscribe_to_topic(handler)
-    request = SubscribeToTopicRequest()
-    request.topic = telemetry_topic
-    future = telemetry_operation.activate(request)
     try:
+        request = SubscribeToTopicRequest()
+        request.topic = telemetry_topic
+        future = telemetry_operation.activate(request)
         future.result(TIMEOUT)
         logging.info("Successfully subscribed to topic: {}".format(telemetry_topic))
         logging.info("Relaying telemetry to InfluxDB...")

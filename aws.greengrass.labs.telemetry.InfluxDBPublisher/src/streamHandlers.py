@@ -10,8 +10,6 @@ from distutils.util import strtobool
 import awsiot.greengrasscoreipc.client as client
 from awsiot.greengrasscoreipc.model import SubscriptionResponseMessage
 
-logging.basicConfig(level=logging.INFO)
-
 
 class InfluxDBDataStreamHandler(client.SubscribeToTopicStreamHandler):
     def __init__(self):
