@@ -1,0 +1,16 @@
+{
+  "component": {
+    "com.offline.BrokenComponent": {
+      "author": "AWS",
+      "version": "NEXT_PATCH",
+      "build": {
+        "build_system": "zip"
+      },
+      "publish": {
+        "bucket": "component-artifacts",
+        "region": "us-east-1"
+      }
+    }
+  },
+  "gdk_version": "1.1.0"
+}
