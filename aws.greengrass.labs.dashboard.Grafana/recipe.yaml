@@ -105,7 +105,7 @@ Manifests:
           echo "Removing the Grafana container..."
           docker rm {configuration:/GrafanaContainerName}
     Artifacts:
-      - URI: 'docker:grafana/grafana:8.2.0' 
+      - URI: 'docker:grafana/grafana:main' 
       - URI: "s3://BUCKET_NAME/COMPONENT_NAME/COMPONENT_VERSION/aws.greengrass.labs.dashboard.Grafana.zip"
         Unarchive: ZIP
         Permission:
