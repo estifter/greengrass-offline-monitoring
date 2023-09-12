@@ -11,7 +11,7 @@ ComponentDependencies:
 ComponentConfiguration:
   DefaultConfiguration:
     TopicArn: "arn:aws:sns:region:account:topic"
-    AlarmCommand: "echo test"
+    AlarmCommand: "echo 'test'"
     accessControl:
       aws.greengrass.ipc.pubsub:
         com.offline.telemetry.PostgresPublisher:pubsub:1:
