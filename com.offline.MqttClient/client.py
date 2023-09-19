@@ -162,23 +162,22 @@ def relay_messages(
 if __name__ == "__main__":
     args = parse_args()
     all_topics = json.loads(args.topics)
-    hostname_path = args.hostname_path
-    port_path = args.port_path
-    cert_path = args.cert_path
-    key_path = args.key_path
-    broker_cert_path = args.broker_cert_path
-    thing_name = args.thing_name
 
-    with open(hostname_path) as f:
+    with open(args.hostname_path) as f:
         hostname = f.read().strip()
-    with open(port_path) as f:
+    with open(args.port_path) as f:
         port = int(f.read().strip())
 
     topic_map = {x["From"]: x["To"] for x in all_topics}
     local_client = GreengrassCoreIPCClientV2()
     logging.info("attempting to connect to remote MQTT broker")
     remote_client = remote_connection_with_retry(
-        hostname, port, cert_path, key_path, broker_cert_path, thing_name
+        hostname,
+        port,
+        args.cert_path,
+        args.key_path,
+        args.broker_cert_path,
+        args.thing_name,
     )
 
     logging.debug(f"topic map: {topic_map}")

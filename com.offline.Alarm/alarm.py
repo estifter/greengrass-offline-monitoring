@@ -14,7 +14,7 @@ parser.add_argument("--on_alarm_command")
 
 telemetry_topic = "injected/greengrass/telemetry"
 
-already_notified = set()
+already_alarmed = set()
 
 
 def send_to_sns(client, topic_arn: str, message: str):
@@ -35,8 +35,8 @@ def check_telemetry(
                 if point["NS"] == "ComponentStatus" and point["V"] == "BROKEN":
                     broken_components.add(point["N"])
 
-        if len(broken_components - already_notified) > 0:
-            already_notified.update(broken_components)
+        if len(broken_components - already_alarmed) > 0:
+            already_alarmed.update(broken_components)
             if on_alarm_command:
                 proc = subprocess.run(on_alarm_command, shell=True, capture_output=True)
                 print(
@@ -66,6 +66,6 @@ if __name__ == "__main__":
     while True:
         # every 5 minutes we reset the alarm
         if timer % 300 == 0:
-            already_notified.clear()
+            already_alarmed.clear()
         time.sleep(1)
         timer += 1

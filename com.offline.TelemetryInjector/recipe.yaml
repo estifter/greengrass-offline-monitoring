@@ -21,7 +21,8 @@ ComponentConfiguration:
           operations:
             - "*"
           resources:
-            - "*"
+            - "injected/greengrass/telemetry",
+            - "$local/greengrass/telemetry"
 Manifests:
   - Platform:
       os: /darwin|linux/
@@ -29,6 +30,5 @@ Manifests:
       - URI: "s3://BUCKET_NAME/COMPONENT_NAME/COMPONENT_VERSION/com.offline.TelemetryInjector.zip"
         Unarchive: ZIP
     Lifecycle:
-      Install: "pip install awsiotsdk"
       Run: "python3 -u {artifacts:decompressedPath}/com.offline.TelemetryInjector/inject.py 
                 {configuration:/TelemetryPublishTopic}"

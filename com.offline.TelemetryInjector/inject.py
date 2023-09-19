@@ -25,12 +25,12 @@ def inject_state_to_telemetry(telemetry_data: List[Dict], thing_name: str):
     for c in component_states:
         telemetry_data.append(
             {
-                "NS": "ComponentStatus",  # hacky, but set name
-                "N": c["name"],  # this setup won't work with InfluxDB
-                "U": "None",  # fine
-                "A": "None",  # won't work with InfluxDB
+                "NS": "ComponentStatus",
+                "N": c["name"],
+                "U": "None",
+                "A": "None",
                 "V": c["state"],
-                "TS": time.time_ns() // 1000000,  # time in ms
+                "TS": time.time_ns() // 1_000_000,  # time in ms
             }
         )
 
