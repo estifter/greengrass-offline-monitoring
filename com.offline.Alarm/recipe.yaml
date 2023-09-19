@@ -10,7 +10,6 @@ ComponentDependencies:
     DependencyType: HARD
 ComponentConfiguration:
   DefaultConfiguration:
-    TopicArn: "arn:aws:sns:region:account:topic"
     AlarmCommand: "echo 'test'"
     accessControl:
       aws.greengrass.ipc.pubsub:
@@ -26,7 +25,6 @@ Manifests:
     Lifecycle:
       Install: "pip install boto3"
       Run: "python3 -u {artifacts:decompressedPath}/com.offline.Alarm/alarm.py 
-              --sns_topic '{configuration:/TopicArn}'
               --on_alarm_command '{configuration:/AlarmCommand}'"
     Artifacts:
       - URI: "s3://BUCKET_NAME/COMPONENT_NAME/COMPONENT_VERSION/com.offline.Alarm.zip"
